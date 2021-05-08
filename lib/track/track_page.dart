@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/track/track_nao.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 class TrackPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return TrackPageState();
+    return _TrackPageState();
   }
 }
 
-class TrackPageState extends State<TrackPage> {
+class _TrackPageState extends State<TrackPage> {
   TrackNao trackNao = TrackNao();
   late TextEditingController textEditingController;
 
@@ -246,7 +245,7 @@ class TrackPageState extends State<TrackPage> {
     }).catchError((e) {
       model = null;
       logger.w(e);
-      Toast.show("可能存在错误的订单号", context, duration: 3);
+      Toast.show("可能存在错误的订单号\n请检查输入框中的订单号是否正确", context, duration: 5);
     }).whenComplete(() => setState(() {}));
   }
 

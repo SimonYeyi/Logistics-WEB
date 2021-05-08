@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_boost/flutter_boost_app.dart';
 import 'package:logistics/home/home_page.dart';
-import 'package:logistics/test/test_page.dart';
 import 'package:logistics/track/track_page.dart';
 
 void main() {
@@ -13,10 +12,6 @@ class MyApp extends StatelessWidget {
     '/': (settings, uniqueId) {
       return PageRouteBuilder<dynamic>(
           settings: settings, pageBuilder: (_, __, ___) => HomePage());
-    },
-    'test': (settings, uniqueId) {
-      return PageRouteBuilder<dynamic>(
-          settings: settings, pageBuilder: (_, __, ___) => TestPage());
     },
     'track': (settings, uniqueId) {
       return PageRouteBuilder<dynamic>(
