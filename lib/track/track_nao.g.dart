@@ -26,7 +26,7 @@ Map<String, dynamic> _$OrdersTracksModelToJson(OrdersTracksModel instance) =>
 OrderModel _$OrderModelFromJson(Map<String, dynamic> json) {
   return OrderModel(
     json['orderNo'] as String,
-    json['delegateOrderNo'] as String,
+    json['delegateOrderNo'] as String?,
     json['orderTime'] as String,
     json['destination'] as String,
   );

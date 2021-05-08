@@ -168,7 +168,7 @@ class _TrackPageState extends State<TrackPage> {
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
         decoration: BoxDecoration(
-          border: Border.all(color: hexColor("#E5E5E5"), width: 0.5),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Text(
           text,
