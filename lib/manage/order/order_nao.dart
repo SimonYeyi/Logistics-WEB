@@ -36,7 +36,7 @@ class OrderPageDTO {
 class OrderDTO {
   num id;
   String no;
-  DateTime time;
+  String time;
   int amount;
   int amountPaid;
   ContactsDTO from;

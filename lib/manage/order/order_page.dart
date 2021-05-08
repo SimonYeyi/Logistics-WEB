@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/comm/color.dart';
+import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/order/order_nao.dart';
 
 class OrderPage extends StatefulWidget {
@@ -31,13 +32,25 @@ class _OrderListPage extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<_OrderListPage> {
-  late TextEditingController textEditingController;
-  OrderNao orderNao = OrderNao();
+  final TextEditingController textEditingController = TextEditingController();
+  final OrderNao orderNao = OrderNao();
+  List<OrderDTO> orders = [];
 
   @override
   void initState() {
     super.initState();
-    textEditingController = TextEditingController();
+    getAndShowOrders();
+  }
+
+  void getAndShowOrders() async {
+    try {
+      final page = await orderNao.getOrders(1, 10);
+      logger.d(page);
+      orders = page.content;
+      setState(() {});
+    } catch (e) {
+      logger.w(e);
+    }
   }
 
   @override
@@ -55,28 +68,38 @@ class _OrderListPageState extends State<_OrderListPage> {
   }
 
   Widget inputWidget() {
-    return SizedBox(
-      width: 400,
-      child: TextField(
-        onChanged: (text) {},
-        controller: textEditingController,
-        style: TextStyle(fontSize: 14),
-        cursorHeight: 18,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.all(Radius.circular(22)),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(child: SizedBox(
+          width: 300,
+          height: 32,
+          child: TextField(
+            onChanged: (text) {},
+            controller: textEditingController,
+            style: TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              hintText: "输入订单号搜索",
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.all(Radius.circular(22)),
-          ),
-          contentPadding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-          hintText: "输入订单号搜索",
+        ),),
+        SizedBox(width: 6),
+        ElevatedButton(
+          onPressed: () {},
+          child: Text("搜索"),
         ),
-      ),
+      ],
     );
   }
 
@@ -92,9 +115,16 @@ class _OrderListPageState extends State<_OrderListPage> {
           Flexible(
             child: ListView.builder(
               itemBuilder: (context, index) {
-                return orderItemWidget("运单号", "转单号", "下单时间", "目的地");
+                final order = orders[index];
+                return orderItemWidget(
+                    order.no,
+                    order.delegateOrders.isEmpty
+                        ? ""
+                        : order.delegateOrders[0].no,
+                    order.time,
+                    order.to.address);
               },
-              itemCount: 2,
+              itemCount: orders.length,
               shrinkWrap: true,
             ),
           ),

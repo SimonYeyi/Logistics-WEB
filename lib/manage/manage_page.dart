@@ -12,6 +12,7 @@ class ManagePage extends StatefulWidget {
 
 class _ManagePageState extends State<ManagePage> {
   late PageController pageController;
+  int currentPage = 0;
 
   @override
   void initState() {
@@ -43,6 +44,9 @@ class _ManagePageState extends State<ManagePage> {
             },
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all(Size(double.infinity, 64)),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder()),
+              backgroundColor: MaterialStateProperty.all(
+                  currentPage == 0 ? Colors.blue[100] : null),
             ),
             child: Text("订单管理"),
           ),
@@ -53,6 +57,9 @@ class _ManagePageState extends State<ManagePage> {
             },
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all(Size(double.infinity, 64)),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder()),
+              backgroundColor: MaterialStateProperty.all(
+                  currentPage == 1 ? Colors.blue[100] : null),
             ),
             child: Text("轨迹管理"),
           ),
@@ -65,6 +72,10 @@ class _ManagePageState extends State<ManagePage> {
   Widget pageView() {
     return Expanded(
       child: PageView(
+        onPageChanged: (page) {
+          currentPage = page;
+          setState(() {});
+        },
         physics: NeverScrollableScrollPhysics(),
         controller: pageController,
         children: [OrderPage(), TrackPage()],

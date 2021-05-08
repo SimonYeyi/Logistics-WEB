@@ -23,7 +23,7 @@ OrderDTO _$OrderDTOFromJson(Map<String, dynamic> json) {
   return OrderDTO(
     json['id'] as num,
     json['no'] as String,
-    DateTime.parse(json['time'] as String),
+    json['time'] as String,
     json['amount'] as int,
     json['amountPaid'] as int,
     ContactsDTO.fromJson(json['from'] as Map<String, dynamic>),
@@ -37,7 +37,7 @@ OrderDTO _$OrderDTOFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$OrderDTOToJson(OrderDTO instance) => <String, dynamic>{
       'id': instance.id,
       'no': instance.no,
-      'time': instance.time.toIso8601String(),
+      'time': instance.time,
       'amount': instance.amount,
       'amountPaid': instance.amountPaid,
       'from': instance.from,

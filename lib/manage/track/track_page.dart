@@ -12,7 +12,7 @@ class _TrackPageState extends State<TrackPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.amberAccent,
+
     );
   }
 }
