@@ -25,9 +25,7 @@ class _ManagePageState extends State<ManagePage> {
       body: Row(
         children: [
           tabBar(),
-          Container(color: Theme
-              .of(context)
-              .dividerColor, width: 1),
+          Container(color: Theme.of(context).dividerColor, width: 1),
           pageView(),
         ],
       ),
@@ -36,6 +34,7 @@ class _ManagePageState extends State<ManagePage> {
 
   Widget tabBar() {
     return Container(
+      width: 160,
       child: Column(
         children: [
           TextButton(
@@ -43,19 +42,21 @@ class _ManagePageState extends State<ManagePage> {
               pageController.jumpToPage(0);
             },
             style: ButtonStyle(
-              minimumSize: MaterialStateProperty.all(Size(160, 64)),
+              minimumSize: MaterialStateProperty.all(Size(double.infinity, 64)),
             ),
             child: Text("订单管理"),
           ),
+          Divider(),
           TextButton(
             onPressed: () {
               pageController.jumpToPage(1);
             },
             style: ButtonStyle(
-              minimumSize: MaterialStateProperty.all(Size(160, 64)),
+              minimumSize: MaterialStateProperty.all(Size(double.infinity, 64)),
             ),
             child: Text("轨迹管理"),
           ),
+          Divider(),
         ],
       ),
     );
@@ -66,10 +67,7 @@ class _ManagePageState extends State<ManagePage> {
       child: PageView(
         physics: NeverScrollableScrollPhysics(),
         controller: pageController,
-        children: [
-          OrderPage(),
-          TrackPage()
-        ],
+        children: [OrderPage(), TrackPage()],
       ),
     );
   }

@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         home: home,
         theme: ThemeData(
           platform: TargetPlatform.android,
+          dividerTheme: DividerThemeData(space: 1),
         ),
       );
     });

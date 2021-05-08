@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_boost/flutter_boost_app.dart';
-import 'package:logistics/home/home_page.dart';
 import 'package:logistics/manage/manage_page.dart';
-import 'package:logistics/track/track_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,6 +24,7 @@ class MyApp extends StatelessWidget {
     return FlutterBoostApp(routeFactory, appBuilder: (home) {
       return MaterialApp(
         home: home,
+        theme: ThemeData(dividerTheme: DividerThemeData(space: 1)),
       );
     });
   }
