@@ -194,7 +194,7 @@ class _OrderListPageState extends State<_OrderListPage> {
                 ..add(savedOrder)
                 ..addAll(orders);
               selectedItem = 0;
-              value.savedOrder = null;
+              value._savedOrder = null;
             }
             return Flexible(
               child: ListView.builder(
@@ -304,17 +304,17 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
     orderTime = order?.time ?? "";
     orderToAddress = order?.to.address ?? "";
     delegateOrderNo = delegateOrders.isNotEmpty ? delegateOrders[0].no : "";
-
-    canSave = widget.order == null;
   }
 
   @override
   Widget build(BuildContext context) {
     widget.order = context.watch<OrderModelsNotifier>().selectedOrder;
+    canSave = widget.order == null;
     return Form(
       key: formKey,
       child: Column(
         children: [
+          SizedBox(height: 32),
           orderNoRow(),
           orderTimeRow(),
           toAddressRow(),
@@ -336,15 +336,20 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
         delegateOrderNo == "") {
       return;
     }
-    OrderCreateCommand orderCreateCommand = OrderCreateCommand(
-        orderNo, orderTime, ContactsDTO("", "", orderToAddress));
-    OrderDTO order = await orderNao.createOrder(orderCreateCommand);
-    order = await orderNao.delegatedOrder(
-        orderNo, OrderDelegatedCommand([DelegateItem(delegateOrderNo)]));
-    logger.d(order);
-    canSave = false;
-    context.read<OrderModelsNotifier>().savedOrder = order;
-    setState(() {});
+    try {
+      OrderCreateCommand orderCreateCommand = OrderCreateCommand(
+          orderNo, orderTime, ContactsDTO("", "", orderToAddress));
+      OrderDTO order = await orderNao.createOrder(orderCreateCommand);
+      order = await orderNao.delegatedOrder(
+          orderNo, OrderDelegatedCommand([DelegateItem(delegateOrderNo)]));
+      logger.d(order);
+      final notifier = context.read<OrderModelsNotifier>();
+      notifier.savedOrder = order;
+      notifier.selectedOrder = order;
+      setState(() {});
+    } catch (e) {
+      logger.w(e);
+    }
   }
 
   Widget orderNoRow() {
