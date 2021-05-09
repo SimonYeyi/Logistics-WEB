@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/order/order_nao.dart';
+import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 
 class OrderPage extends StatefulWidget {
@@ -13,15 +14,37 @@ class OrderPage extends StatefulWidget {
   }
 }
 
+class OrderModelsNotifier with ChangeNotifier {
+  OrderDTO? _selectedOrder;
+  OrderDTO? _savedOrder;
+
+  set selectedOrder(OrderDTO? order) {
+    _selectedOrder = order;
+    notifyListeners();
+  }
+
+  OrderDTO? get selectedOrder => _selectedOrder;
+
+  set savedOrder(OrderDTO? order) {
+    _savedOrder = order;
+    notifyListeners();
+  }
+
+  OrderDTO? get savedOrder => _savedOrder;
+}
+
 class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _OrderListPage()),
-        Container(width: 1, color: Theme.of(context).dividerColor),
-        Expanded(child: _OrderDetailsPage()),
-      ],
+    return ChangeNotifierProvider(
+      create: (context) => OrderModelsNotifier(),
+      child: Row(
+        children: [
+          Expanded(child: _OrderListPage()),
+          Container(width: 1, color: Theme.of(context).dividerColor),
+          Expanded(child: _OrderDetailsPage()),
+        ],
+      ),
     );
   }
 }
@@ -38,7 +61,7 @@ class _OrderListPageState extends State<_OrderListPage> {
   final OrderNao orderNao = OrderNao();
   List<OrderDTO> orders = [];
   OrderDTO? searchedOrder;
-  int? selectedItem = 0;
+  int? selectedItem;
 
   @override
   void initState() {
@@ -51,6 +74,10 @@ class _OrderListPageState extends State<_OrderListPage> {
       final page = await orderNao.getOrders(1, 10);
       logger.d(page);
       orders = page.content;
+      if (orders.isNotEmpty) {
+        selectedItem = 0;
+        context.read<OrderModelsNotifier>().selectedOrder = orders[0];
+      }
       setState(() {});
     } catch (e) {
       logger.w(e);
@@ -119,7 +146,8 @@ class _OrderListPageState extends State<_OrderListPage> {
     if (orderNo == "") return;
     try {
       searchedOrder = await orderNao.searchOrder(orderNo);
-      selectedItem = null;
+      selectedItem = -1;
+      context.read<OrderModelsNotifier>().selectedOrder = searchedOrder!;
       setState(() {});
     } catch (e) {
       logger.w(e);
@@ -139,14 +167,16 @@ class _OrderListPageState extends State<_OrderListPage> {
           searchedOrder == null
               ? SizedBox()
               : Container(
-                  color: selectedItem == null
+                  color: selectedItem == -1
                       ? Colors.grey[200]
                       : Colors.transparent,
                   margin: EdgeInsets.only(bottom: 6),
                   child: GestureDetector(
                     onTap: () {
-                      selectedItem = null;
+                      selectedItem = -1;
                       setState(() {});
+                      context.read<OrderModelsNotifier>().selectedOrder =
+                          searchedOrder!;
                     },
                     child: orderItemWidget(
                         searchedOrder!.no,
@@ -157,29 +187,40 @@ class _OrderListPageState extends State<_OrderListPage> {
                         searchedOrder!.to.address),
                   ),
                 ),
-          Flexible(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return GestureDetector(
-                  onTap: () {
-                    selectedItem = index;
-                    setState(() {});
-                  },
-                  child: orderItemWidget(
-                      order.no,
-                      order.delegateOrders.isEmpty
-                          ? ""
-                          : order.delegateOrders[0].no,
-                      order.time,
-                      order.to.address,
-                      selectedItem == index),
-                );
-              },
-              itemCount: orders.length,
-              shrinkWrap: true,
-            ),
-          ),
+          Consumer<OrderModelsNotifier>(builder: (context, value, child) {
+            final savedOrder = value.savedOrder;
+            if (savedOrder != null) {
+              orders = []
+                ..add(savedOrder)
+                ..addAll(orders);
+              selectedItem = 0;
+              value.savedOrder = null;
+            }
+            return Flexible(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  final order = orders[index];
+                  return GestureDetector(
+                    onTap: () {
+                      selectedItem = index;
+                      setState(() {});
+                      context.read<OrderModelsNotifier>().selectedOrder = order;
+                    },
+                    child: orderItemWidget(
+                        order.no,
+                        order.delegateOrders.isEmpty
+                            ? ""
+                            : order.delegateOrders[0].no,
+                        order.time,
+                        order.to.address,
+                        selectedItem == index),
+                  );
+                },
+                itemCount: orders.length,
+                shrinkWrap: true,
+              ),
+            );
+          }),
           SizedBox(height: 10),
           Container(
             width: double.infinity,
@@ -190,6 +231,7 @@ class _OrderListPageState extends State<_OrderListPage> {
               icon: Icon(Icons.add),
               onPressed: () {
                 selectedItem = null;
+                context.read<OrderModelsNotifier>().selectedOrder = null;
                 setState(() {});
               },
             ),
@@ -236,6 +278,8 @@ class _OrderListPageState extends State<_OrderListPage> {
 }
 
 class _OrderDetailsPage extends StatefulWidget {
+  OrderDTO? order;
+
   @override
   State<StatefulWidget> createState() {
     return _OrderDetailsPageState();
@@ -243,8 +287,123 @@ class _OrderDetailsPage extends StatefulWidget {
 }
 
 class _OrderDetailsPageState extends State<_OrderDetailsPage> {
+  final GlobalKey<FormState> formKey = GlobalKey();
+  final OrderNao orderNao = OrderNao();
+  late String orderNo;
+  late String orderTime;
+  late String orderToAddress;
+  late String delegateOrderNo;
+  bool canSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final order = widget.order;
+    final delegateOrders = order?.delegateOrders ?? const [];
+    orderNo = order?.no ?? "";
+    orderTime = order?.time ?? "";
+    orderToAddress = order?.to.address ?? "";
+    delegateOrderNo = delegateOrders.isNotEmpty ? delegateOrders[0].no : "";
+
+    canSave = widget.order == null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    widget.order = context.watch<OrderModelsNotifier>().selectedOrder;
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          orderNoRow(),
+          orderTimeRow(),
+          toAddressRow(),
+          delegateOrderNoRow(),
+          SizedBox(height: 20),
+          canSave
+              ? ElevatedButton(onPressed: save, child: Text("保存"))
+              : SizedBox(),
+        ],
+      ),
+    );
+  }
+
+  void save() async {
+    formKey.currentState?.save();
+    if (orderNo == "" ||
+        orderTime == "" ||
+        orderToAddress == "" ||
+        delegateOrderNo == "") {
+      return;
+    }
+    OrderCreateCommand orderCreateCommand = OrderCreateCommand(
+        orderNo, orderTime, ContactsDTO("", "", orderToAddress));
+    OrderDTO order = await orderNao.createOrder(orderCreateCommand);
+    order = await orderNao.delegatedOrder(
+        orderNo, OrderDelegatedCommand([DelegateItem(delegateOrderNo)]));
+    logger.d(order);
+    canSave = false;
+    context.read<OrderModelsNotifier>().savedOrder = order;
+    setState(() {});
+  }
+
+  Widget orderNoRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => orderNo = value!,
+          initialValue: orderNo,
+          decoration: InputDecoration(
+            labelText: "订单号: ",
+            labelStyle: TextStyle(
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget orderTimeRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => orderTime = value!,
+          initialValue: orderTime,
+          decoration: InputDecoration(
+              labelText: "下单时间：", labelStyle: TextStyle(fontSize: 14)),
+        ),
+      ),
+    );
+  }
+
+  Widget toAddressRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => orderToAddress = value!,
+          initialValue: orderToAddress,
+          decoration: InputDecoration(
+              labelText: "目的地: ", labelStyle: TextStyle(fontSize: 14)),
+        ),
+      ),
+    );
+  }
+
+  Widget delegateOrderNoRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => delegateOrderNo = value!,
+          initialValue: delegateOrderNo,
+          decoration: InputDecoration(
+              labelText: "转单号: ", labelStyle: TextStyle(fontSize: 14)),
+        ),
+      ),
+    );
   }
 }

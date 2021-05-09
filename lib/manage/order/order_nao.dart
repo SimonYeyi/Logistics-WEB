@@ -15,6 +15,13 @@ abstract class OrderNao {
   @GET("/order/page/get")
   Future<OrderPageDTO> getOrders(
       @Query("page") int page, @Query("pageSize") int pageSize);
+
+  @POST("/order/add")
+  Future<OrderDTO> createOrder(@Body() OrderCreateCommand command);
+
+  @PATCH("/order/{orderNo}/delegated")
+  Future<OrderDTO> delegatedOrder(
+      @Path("orderNo") String orderNo, @Body() OrderDelegatedCommand command);
 }
 
 @JsonSerializable()
@@ -70,6 +77,8 @@ class ContactsDTO {
 
   factory ContactsDTO.fromJson(Map<String, dynamic> json) =>
       _$ContactsDTOFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ContactsDTOToJson(this);
 }
 
 @JsonSerializable()
@@ -88,4 +97,46 @@ class DelegateOrderDTO {
 
   factory DelegateOrderDTO.fromJson(Map<String, dynamic> json) =>
       _$DelegateOrderDTOFromJson(json);
+}
+
+@JsonSerializable()
+class OrderCreateCommand {
+  String orderNo;
+  String orderTime;
+  ContactsDTO to;
+
+  OrderCreateCommand(this.orderNo, this.orderTime, this.to);
+
+  Map<String, dynamic> toJson() => _$OrderCreateCommandToJson(this);
+}
+
+@JsonSerializable()
+class OrderDelegatedCommand {
+  List<DelegateItem> delegateItems;
+
+  OrderDelegatedCommand(this.delegateItems);
+
+  @override
+  String toString() {
+    return 'OrderDelegatedCommand{delegateItems: $delegateItems}';
+  }
+
+  Map<String, dynamic> toJson() => _$OrderDelegatedCommandToJson(this);
+}
+
+@JsonSerializable()
+class DelegateItem {
+  String delegateOrderNo;
+
+  DelegateItem(this.delegateOrderNo);
+
+  @override
+  String toString() {
+    return 'DelegateItem{delegateOrderNo: $delegateOrderNo}';
+  }
+
+  factory DelegateItem.fromJson(Map<String, dynamic> json) =>
+      _$DelegateItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DelegateItemToJson(this);
 }
