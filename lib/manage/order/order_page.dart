@@ -294,22 +294,33 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
   late String orderToAddress;
   late String delegateOrderNo;
   bool canSave = false;
+  final TextEditingController orderNoTextEditingController =
+      TextEditingController();
+  final TextEditingController orderTimeTextEditingController =
+      TextEditingController();
+  final TextEditingController orderToAddressTextEditingController =
+      TextEditingController();
+  final TextEditingController delegateOrderNoTextEditingController =
+      TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    widget.order = context.watch<OrderModelsNotifier>().selectedOrder;
     final order = widget.order;
     final delegateOrders = order?.delegateOrders ?? const [];
     orderNo = order?.no ?? "";
     orderTime = order?.time ?? "";
     orderToAddress = order?.to.address ?? "";
     delegateOrderNo = delegateOrders.isNotEmpty ? delegateOrders[0].no : "";
-  }
+    canSave = order == null;
 
-  @override
-  Widget build(BuildContext context) {
-    widget.order = context.watch<OrderModelsNotifier>().selectedOrder;
-    canSave = widget.order == null;
+    logger.d(
+        "orderNo:$orderNo, orderTime:$orderTime, orderToAddress:$orderToAddress, delegateOrderNo:$delegateOrderNo");
+    orderNoTextEditingController.text = orderNo;
+    orderTimeTextEditingController.text = orderTime;
+    orderToAddressTextEditingController.text = orderToAddress;
+    delegateOrderNoTextEditingController.text = delegateOrderNo;
+
     return Form(
       key: formKey,
       child: Column(
@@ -346,8 +357,11 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       final notifier = context.read<OrderModelsNotifier>();
       notifier.savedOrder = order;
       notifier.selectedOrder = order;
+      FocusScope.of(context).requestFocus(new FocusNode());
+      Toast.show("保存成功", context);
       setState(() {});
     } catch (e) {
+      Toast.show("请检查时间格式是否正确\n或订单号是否已经存在", context, duration: 5);
       logger.w(e);
     }
   }
@@ -358,7 +372,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
         width: 200,
         child: TextFormField(
           onSaved: (value) => orderNo = value!,
-          initialValue: orderNo,
+          controller: orderNoTextEditingController,
           decoration: InputDecoration(
             labelText: "订单号: ",
             labelStyle: TextStyle(
@@ -376,7 +390,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
         width: 200,
         child: TextFormField(
           onSaved: (value) => orderTime = value!,
-          initialValue: orderTime,
+          controller: orderTimeTextEditingController,
           decoration: InputDecoration(
               labelText: "下单时间：", labelStyle: TextStyle(fontSize: 14)),
         ),
@@ -390,7 +404,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
         width: 200,
         child: TextFormField(
           onSaved: (value) => orderToAddress = value!,
-          initialValue: orderToAddress,
+          controller: orderToAddressTextEditingController,
           decoration: InputDecoration(
               labelText: "目的地: ", labelStyle: TextStyle(fontSize: 14)),
         ),
@@ -404,7 +418,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
         width: 200,
         child: TextFormField(
           onSaved: (value) => delegateOrderNo = value!,
-          initialValue: delegateOrderNo,
+          controller: delegateOrderNoTextEditingController,
           decoration: InputDecoration(
               labelText: "转单号: ", labelStyle: TextStyle(fontSize: 14)),
         ),
