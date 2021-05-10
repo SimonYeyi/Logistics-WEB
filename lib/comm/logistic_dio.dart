@@ -3,4 +3,4 @@ import 'package:dio/dio.dart';
 Dio logisticsDio = Dio(options);
 
 BaseOptions options = BaseOptions(
-    baseUrl: "http://localhost:5000");
+    baseUrl: "http://api.datu.com:5000");

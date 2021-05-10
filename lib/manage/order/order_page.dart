@@ -1,6 +1,8 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/order/order_nao.dart';
@@ -361,7 +363,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       Toast.show("保存成功", context);
       setState(() {});
     } catch (e) {
-      Toast.show("请检查时间格式是否正确\n或订单号是否已经存在", context, duration: 5);
+      Toast.show("请检查订单号是否已经存在", context, duration: 5);
       logger.w(e);
     }
   }
@@ -386,13 +388,30 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
 
   Widget orderTimeRow() {
     return Flexible(
-      child: SizedBox(
-        width: 200,
-        child: TextFormField(
-          onSaved: (value) => orderTime = value!,
-          controller: orderTimeTextEditingController,
-          decoration: InputDecoration(
-              labelText: "下单时间：", labelStyle: TextStyle(fontSize: 14)),
+      child: GestureDetector(
+        onTap: () {
+          DatePicker.showDateTimePicker(
+            context,
+            showTitleActions: true,
+            currentTime: DateTime.now(),
+            locale: LocaleType.zh,
+            minTime: DateTime(2021, 5, 10),
+            maxTime: DateTime(2049, 5, 9),
+            onConfirm: (date) {
+              orderTimeTextEditingController.text = formatDate(
+                  date, [yyyy, "-", mm, "-", dd, " ", HH, ":", nn, ":", ss]);
+            },
+          );
+        },
+        child: SizedBox(
+          width: 200,
+          child: TextFormField(
+            onSaved: (value) => orderTime = value!,
+            controller: orderTimeTextEditingController,
+            enabled: false,
+            decoration: InputDecoration(
+                labelText: "下单时间：", labelStyle: TextStyle(fontSize: 14)),
+          ),
         ),
       ),
     );
