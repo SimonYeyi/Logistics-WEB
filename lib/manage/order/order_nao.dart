@@ -17,7 +17,7 @@ abstract class OrderNao {
       @Query("page") int page, @Query("pageSize") int pageSize);
 
   @POST("/order/add")
-  Future<OrderDTO> createOrder(@Body() OrderCreateCommand command);
+  Future<OrderDTO> addOrder(@Body() OrderCreateCommand command);
 
   @PATCH("/order/{orderNo}/delegated")
   Future<OrderDTO> delegatedOrder(

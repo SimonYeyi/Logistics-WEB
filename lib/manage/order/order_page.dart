@@ -9,13 +9,6 @@ import 'package:logistics/manage/order/order_nao.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 
-class OrderPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _OrderPageState();
-  }
-}
-
 class OrderModelsNotifier with ChangeNotifier {
   OrderDTO? _selectedOrder;
   OrderDTO? _savedOrder;
@@ -33,6 +26,13 @@ class OrderModelsNotifier with ChangeNotifier {
   }
 
   OrderDTO? get savedOrder => _savedOrder;
+}
+
+class OrderPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _OrderPageState();
+  }
 }
 
 class _OrderPageState extends State<OrderPage> {
@@ -352,7 +352,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
     try {
       OrderCreateCommand orderCreateCommand = OrderCreateCommand(
           orderNo, orderTime, ContactsDTO("", "", orderToAddress));
-      OrderDTO order = await orderNao.createOrder(orderCreateCommand);
+      OrderDTO order = await orderNao.addOrder(orderCreateCommand);
       order = await orderNao.delegatedOrder(
           orderNo, OrderDelegatedCommand([DelegateItem(delegateOrderNo)]));
       logger.d(order);

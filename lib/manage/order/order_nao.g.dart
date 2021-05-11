@@ -163,7 +163,7 @@ class _OrderNao implements OrderNao {
   }
 
   @override
-  Future<OrderDTO> createOrder(command) async {
+  Future<OrderDTO> addOrder(command) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
