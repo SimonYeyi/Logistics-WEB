@@ -187,9 +187,14 @@ class _TrackListPageState extends State<_TrackListPage> {
             child: IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
-                selectedItem = null;
-                context.read<TrackModelsNotifier>().selectedTrack = null;
-                setState(() {});
+                final notifier = context.read<TrackModelsNotifier>();
+                if (notifier.orderId == null) {
+                  Toast.show("请先输入订单号搜索", context, duration: 3);
+                } else {
+                  selectedItem = null;
+                  notifier.selectedTrack = null;
+                  setState(() {});
+                }
               },
             ),
           ),
@@ -274,7 +279,8 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
         children: [
           SizedBox(height: 32),
           trackAreaRow(),
-          orderEventRow(),
+          SizedBox(height: 12),
+          trackEventRow(),
           SizedBox(height: 20),
           canSave
               ? ElevatedButton(onPressed: save, child: Text("保存"))
@@ -314,8 +320,14 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
           controller: trackAreaTextEditingController,
           decoration: InputDecoration(
             labelText: "区域: ",
-            labelStyle: TextStyle(
-              fontSize: 14,
+            labelStyle: TextStyle(fontSize: 14),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
             ),
           ),
         ),
@@ -323,15 +335,26 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
     );
   }
 
-  Widget orderEventRow() {
+  Widget trackEventRow() {
     return Flexible(
       child: SizedBox(
         width: 200,
         child: TextFormField(
           onSaved: (value) => trackEvent = value!,
           controller: trackEventTextEditingController,
+          maxLines: 5,
           decoration: InputDecoration(
-              labelText: "目的地: ", labelStyle: TextStyle(fontSize: 14)),
+            labelText: "目的地: ",
+            labelStyle: TextStyle(fontSize: 14),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
+          ),
         ),
       ),
     );
