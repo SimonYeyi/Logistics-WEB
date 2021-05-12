@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 100),
       child: SingleChildScrollView(
         child: Image.asset(
-          "images/cycle_report_analysis_example.png",
+          "images/official.png",
           fit: BoxFit.fitWidth,
         ),
       ),
