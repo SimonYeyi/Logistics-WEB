@@ -377,9 +377,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           controller: orderNoTextEditingController,
           decoration: InputDecoration(
             labelText: "订单号: ",
-            labelStyle: TextStyle(
-              fontSize: 14,
-            ),
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
           ),
         ),
       ),
@@ -410,7 +408,9 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
             controller: orderTimeTextEditingController,
             enabled: false,
             decoration: InputDecoration(
-                labelText: "下单时间：", labelStyle: TextStyle(fontSize: 14)),
+              labelText: "下单时间：",
+              labelStyle: TextStyle(fontSize: 14, height: 0.8),
+            ),
           ),
         ),
       ),
@@ -425,7 +425,9 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           onSaved: (value) => orderToAddress = value!,
           controller: orderToAddressTextEditingController,
           decoration: InputDecoration(
-              labelText: "目的地: ", labelStyle: TextStyle(fontSize: 14)),
+            labelText: "目的地: ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
         ),
       ),
     );
@@ -439,7 +441,9 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           onSaved: (value) => delegateOrderNo = value!,
           controller: delegateOrderNoTextEditingController,
           decoration: InputDecoration(
-              labelText: "转单号: ", labelStyle: TextStyle(fontSize: 14)),
+            labelText: "转单号: ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
         ),
       ),
     );
