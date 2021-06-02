@@ -9,8 +9,8 @@ part 'order_nao.g.dart';
 abstract class OrderNao {
   factory OrderNao() => _OrderNao(logisticsDio);
 
-  @GET("/order/{orderNo}/search")
-  Future<OrderDTO> searchOrder(@Path("orderNo") String orderNo);
+  @GET("/order/{orderNo}/get")
+  Future<OrderDTO> getOrder(@Path("orderNo") String orderNo);
 
   @GET("/order/page/get")
   Future<OrderPageDTO> getOrders(

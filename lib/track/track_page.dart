@@ -95,7 +95,7 @@ class _TrackPageState extends State<TrackPage> {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                         onPressed: () {
-                          getAndShowOrdersTracksModel();
+                          searchAndShowOrdersTracksModel();
                         },
                         child: Text("查询")),
                   ),
@@ -235,11 +235,11 @@ class _TrackPageState extends State<TrackPage> {
     );
   }
 
-  void getAndShowOrdersTracksModel() {
+  void searchAndShowOrdersTracksModel() {
     if (textEditingController.text.isEmpty) return;
     final orderNos = orderNosInTextField();
     orderItemCount = orderNos.length;
-    trackNao.getOrdersTracksModel(orderNos).then((value) {
+    trackNao.searchOrdersTracksModel(orderNos).then((value) {
       model = value;
       logger.d(value);
     }).catchError((e) {

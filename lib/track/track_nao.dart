@@ -9,8 +9,8 @@ part 'track_nao.g.dart';
 abstract class TrackNao {
   factory TrackNao() => _TrackNao(logisticsDio);
 
-  @GET("/track/view-model/orders-tracks")
-  Future<OrdersTracksModel> getOrdersTracksModel(
+  @GET("/track/view-model/orders-tracks/search")
+  Future<OrdersTracksModel> searchOrdersTracksModel(
       @Query("orderNos") List<String> orderNos);
 }
 

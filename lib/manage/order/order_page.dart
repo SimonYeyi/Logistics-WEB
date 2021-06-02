@@ -147,7 +147,7 @@ class _OrderListPageState extends State<_OrderListPage> {
   void searchAndShowOrder(String orderNo) async {
     if (orderNo == "") return;
     try {
-      searchedOrder = await orderNao.searchOrder(orderNo);
+      searchedOrder = await orderNao.getOrder(orderNo);
       selectedItem = -1;
       context.read<OrderModelsNotifier>().selectedOrder = searchedOrder!;
       setState(() {});
