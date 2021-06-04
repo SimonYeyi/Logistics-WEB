@@ -244,7 +244,6 @@ class _TrackPageState extends State<TrackPage> {
       logger.d(value);
     }).catchError((e) {
       model = null;
-      logger.w(e);
       Toast.show("可能存在错误的订单号\n请检查输入框中的订单号是否正确", context, duration: 5);
     }).whenComplete(() => setState(() {}));
   }

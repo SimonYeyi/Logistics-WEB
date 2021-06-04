@@ -135,7 +135,6 @@ class _TrackListPageState extends State<_TrackListPage> {
       }
       setState(() {});
     } catch (e) {
-      logger.w(e);
       tracks = [];
       notifier.orderId = null;
       notifier.selectedTrack = null;
@@ -306,7 +305,6 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       Toast.show("保存成功", context);
       setState(() {});
     } catch (e) {
-      logger.w(e);
       Toast.show("保存失败，请重试", context);
     }
   }

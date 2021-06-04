@@ -82,7 +82,7 @@ class _OrderListPageState extends State<_OrderListPage> {
       }
       setState(() {});
     } catch (e) {
-      logger.w(e);
+      Toast.show("未知错误，请刷新页面", context, duration: 3);
     }
   }
 
@@ -152,7 +152,6 @@ class _OrderListPageState extends State<_OrderListPage> {
       context.read<OrderModelsNotifier>().selectedOrder = searchedOrder!;
       setState(() {});
     } catch (e) {
-      logger.w(e);
       Toast.show("请检查订单号是否正确", context, duration: 3);
     }
   }
@@ -364,7 +363,6 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       setState(() {});
     } catch (e) {
       Toast.show("请检查订单号是否已经存在", context, duration: 5);
-      logger.w(e);
     }
   }
 
