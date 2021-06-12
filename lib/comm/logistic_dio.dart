@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:logistics/comm/logger.dart';
 
 final Dio logisticsDio = _createDio();
@@ -36,7 +37,8 @@ class _LoggerInterceptor extends Interceptor {
 
 BaseOptions _createBaseOptions() {
   return BaseOptions(
-    baseUrl: "http://datu.com:5000",
+    baseUrl:
+        kDebugMode ? "http://localhost:5000" : "http://47.106.193.196:5000",
     headers: {
       "Authentication":
           "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKd3RVdGlscyIsImV4cCI6MTYyMjgxMDg0OCwiaWF0IjoxNjIyNzkyODQ4LCJDTEFJTV9OQU1FIjp7IlRPS0VOX1ZFUlNJT04iOjQsIlVTRVJfSUQiOiIxX0wiLCJVU0VSX05BTUUiOiJzdHJpbmcifX0.DEAd9j8cos_QACuzN0XaXe9RKwj5ySoAOnyb0EseWgE"
