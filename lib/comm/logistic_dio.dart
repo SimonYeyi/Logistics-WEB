@@ -38,7 +38,7 @@ class _LoggerInterceptor extends Interceptor {
 BaseOptions _createBaseOptions() {
   return BaseOptions(
     baseUrl:
-        kDebugMode ? "http://localhost:5000" : "http://eus56.com:5000",
+        kDebugMode ? "http://eus56.com:5000" : "http://eus56.com:5000",
     headers: {
       "Authentication":
           "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKd3RVdGlscyIsImV4cCI6MTYyMjgxMDg0OCwiaWF0IjoxNjIyNzkyODQ4LCJDTEFJTV9OQU1FIjp7IlRPS0VOX1ZFUlNJT04iOjQsIlVTRVJfSUQiOiIxX0wiLCJVU0VSX05BTUUiOiJzdHJpbmcifX0.DEAd9j8cos_QACuzN0XaXe9RKwj5ySoAOnyb0EseWgE"
