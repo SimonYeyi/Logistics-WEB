@@ -342,7 +342,7 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
           controller: trackEventTextEditingController,
           maxLines: 5,
           decoration: InputDecoration(
-            labelText: "目的地: ",
+            labelText: "详情: ",
             labelStyle: TextStyle(fontSize: 14),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
