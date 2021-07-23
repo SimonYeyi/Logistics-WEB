@@ -74,6 +74,7 @@ class _TrackPageState extends State<TrackPage> {
                   TextField(
                     controller: textEditingController,
                     maxLines: 10,
+                    autofocus: true,
                     style: TextStyle(fontSize: 12, color: Colors.black),
                     decoration: InputDecoration(
                       filled: true,
