@@ -10,6 +10,17 @@ class HomePage extends StatelessWidget {
     "images/official_banner_4.png",
   ];
 
+  List<Widget> get bannerImagesWithPadding {
+    final banners = <Widget>[];
+    for (int i = 0; i < bannerImageAssets.length; i++) {
+      banners.add(Image.asset(bannerImageAssets[i], fit: BoxFit.fill));
+      if (i != bannerImageAssets.length - 1) {
+        banners.add(SizedBox(width: 10));
+      }
+    }
+    return banners;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,15 +40,9 @@ class HomePage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 360,
-                child: ListView.separated(
+                child: ListView(
                   scrollDirection: Axis.horizontal,
-                  separatorBuilder: (context, index) {
-                    return SizedBox(width: 10);
-                  },
-                  itemBuilder: (context, index) {
-                    return Image.asset(bannerImageAssets[index]);
-                  },
-                  itemCount: bannerImageAssets.length,
+                  children: [...bannerImagesWithPadding],
                 ),
               ),
               SizedBox(height: 20),
