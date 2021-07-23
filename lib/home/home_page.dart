@@ -3,52 +3,66 @@ import 'package:flutter_boost/boost_navigator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatelessWidget {
+  final List<String> bannerImageAssets = const [
+    "images/official_banner_1.png",
+    "images/official_banner_2.png",
+    "images/official_banner_3.png",
+    "images/official_banner_4.png",
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        child: Stack(
-          children: [backgroundImageWidget(), outsideNavigateWidgets()],
+        padding: EdgeInsets.symmetric(horizontal: 80),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Image.asset(
+                  "images/official_top.png",
+                  fit: BoxFit.fill,
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 360,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  separatorBuilder: (context, index) {
+                    return SizedBox(width: 10);
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.asset(bannerImageAssets[index]);
+                  },
+                  itemCount: bannerImageAssets.length,
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () => BoostNavigator.of().push("track"),
+                  child: Image.asset(
+                    "images/official_input.png",
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+              SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: Image.asset(
+                  "images/official_bottom.png",
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget backgroundImageWidget() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 100),
-      child: SingleChildScrollView(
-        child: Image.asset(
-          "images/official.png",
-          fit: BoxFit.fitWidth,
-        ),
-      ),
-    );
-  }
-
-  Widget outsideNavigateWidgets() {
-    final outsideRouteConfig = {
-      "百度": "https://baidu.com",
-      "腾讯": "https://qq.com",
-    };
-
-    List<Widget> widgets = [];
-    outsideRouteConfig.forEach((key, value) {
-      widgets.add(MaterialButton(
-        onPressed: () => launch(value),
-        hoverColor: Colors.blue[100],
-        child: Text(key),
-      ));
-    });
-
-    return Column(children: [...widgets, trackSearchEntryWidget()]);
-  }
-
-  Widget trackSearchEntryWidget() {
-    return OutlinedButton(
-      onPressed: () => BoostNavigator.of().push("track"),
-      child: Text("轨迹查询"),
     );
   }
 }
