@@ -29,6 +29,8 @@ class AccountDTO {
 
   factory AccountDTO.fromJson(Map<String, dynamic> json) =>
       _$AccountDTOFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AccountDTOToJson(this);
 }
 
 @JsonSerializable()

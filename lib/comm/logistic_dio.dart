@@ -1,5 +1,9 @@
+import 'dart:html';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_boost/boost_navigator.dart';
+import 'package:logistics/comm/account_dao.dart';
 import 'package:logistics/comm/logger.dart';
 
 final Dio logisticsDio = _createDio();
@@ -7,8 +11,9 @@ final Dio logisticsDio = _createDio();
 Dio _createDio() {
   final options = _createBaseOptions();
   final dio = Dio(options);
-  final loggerInterceptor = _LoggerInterceptor();
-  dio.interceptors.add(loggerInterceptor);
+  dio.interceptors
+    ..add(_LoggerInterceptor())
+    ..add(_AuthenticationInterceptor());
   return dio;
 }
 
@@ -35,13 +40,30 @@ class _LoggerInterceptor extends Interceptor {
   }
 }
 
+class _AuthenticationInterceptor extends Interceptor {
+  final AccountDao accountDao = AccountDao();
+
+  @override
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    final accountDTO = await accountDao.find();
+    options.headers["Authentication"] = accountDTO?.token;
+    super.onRequest(options, handler);
+  }
+
+  @override
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    super.onError(err, handler);
+    if (err.response?.statusCode == HttpStatus.unauthorized) {
+      onUnauthorized();
+    }
+  }
+}
+
+Function onUnauthorized = () {};
+
 BaseOptions _createBaseOptions() {
   return BaseOptions(
-    baseUrl:
-        kDebugMode ? "http://localhost:5000" : "http://eus56.com:5000",
-    headers: {
-      "Authentication":
-          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKd3RVdGlscyIsImV4cCI6MTYyMjgxMDg0OCwiaWF0IjoxNjIyNzkyODQ4LCJDTEFJTV9OQU1FIjp7IlRPS0VOX1ZFUlNJT04iOjQsIlVTRVJfSUQiOiIxX0wiLCJVU0VSX05BTUUiOiJzdHJpbmcifX0.DEAd9j8cos_QACuzN0XaXe9RKwj5ySoAOnyb0EseWgE"
-    },
+    baseUrl: kDebugMode ? "http://localhost:5000" : "http://eus56.com:5000",
   );
 }

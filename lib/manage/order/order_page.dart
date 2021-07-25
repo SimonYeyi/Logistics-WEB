@@ -1,4 +1,5 @@
 import 'package:date_format/date_format.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,8 +82,8 @@ class _OrderListPageState extends State<_OrderListPage> {
         context.read<OrderModelsNotifier>().selectedOrder = orders[0];
       }
       setState(() {});
-    } catch (e) {
-      Toast.show("未知错误，请刷新页面", context, duration: 3);
+    } on DioError catch (e) {
+      Toast.show(e.response?.data?.toString() ?? "", context, duration: 5);
     }
   }
 
