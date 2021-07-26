@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
 
   void handleUnauthorized(BuildContext context) {
     onUnauthorized = () {
+      Toast.show("登录失效，请重新登录！", context);
       BoostNavigator.of().pop();
     };
   }

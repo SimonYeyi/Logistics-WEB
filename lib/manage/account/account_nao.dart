@@ -11,6 +11,9 @@ abstract class AccountNao {
 
   @POST("/account/login")
   Future<AccountDTO> login(@Body() AccountLoginCommand accountLoginCommand);
+
+  @POST("/account/token/refresh")
+  Future<AccountDTO> refreshToken(@Query("refreshToken") String refreshToken);
 }
 
 @JsonSerializable()

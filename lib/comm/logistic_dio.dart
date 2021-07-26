@@ -2,9 +2,9 @@ import 'dart:html';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_boost/boost_navigator.dart';
 import 'package:logistics/comm/account_dao.dart';
 import 'package:logistics/comm/logger.dart';
+import 'package:logistics/manage/account/account_nao.dart';
 
 final Dio logisticsDio = _createDio();
 
@@ -52,10 +52,26 @@ class _AuthenticationInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
-    super.onError(err, handler);
+  void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == HttpStatus.unauthorized) {
-      onUnauthorized();
+      final accountDTO = await accountDao.find();
+      if (accountDTO != null) {
+        final newAccountDTO =
+            await AccountNao().refreshToken(accountDTO.refreshToken);
+        accountDao.save(newAccountDTO);
+        final options = err.requestOptions;
+        options.headers["Authentication"] = newAccountDTO.token;
+        final response = await logisticsDio.fetch(options);
+        handler.resolve(response);
+      } else {
+        handler.next(err);
+        onUnauthorized();
+      }
+    } else {
+      handler.next(err);
+      if (err.response?.realUri.toString().contains("refreshToken") ?? false) {
+        onUnauthorized();
+      }
     }
   }
 }
