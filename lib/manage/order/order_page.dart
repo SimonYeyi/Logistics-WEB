@@ -192,10 +192,16 @@ class _OrderListPageState extends State<_OrderListPage> {
           Consumer<OrderModelsNotifier>(builder: (context, value, child) {
             final savedOrder = value.savedOrder;
             if (savedOrder != null) {
-              orders = []
-                ..add(savedOrder)
-                ..addAll(orders);
-              selectedItem = 0;
+              if (orders.contains(savedOrder)) {
+                final index = orders.indexOf(savedOrder);
+                orders.removeAt(index);
+                orders.insert(index, savedOrder);
+              } else {
+                orders = []
+                  ..add(savedOrder)
+                  ..addAll(orders);
+                selectedItem = 0;
+              }
               value._savedOrder = null;
             }
             return Flexible(
@@ -295,7 +301,6 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
   late String orderTime;
   late String orderToAddress;
   late String delegateOrderNo;
-  bool canSave = false;
   final TextEditingController orderNoTextEditingController =
       TextEditingController();
   final TextEditingController orderTimeTextEditingController =
@@ -314,7 +319,6 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
     orderTime = order?.time ?? "";
     orderToAddress = order?.to.address ?? "";
     delegateOrderNo = delegateOrders.isNotEmpty ? delegateOrders[0].no : "";
-    canSave = order == null;
 
     logger.d(
         "orderNo:$orderNo, orderTime:$orderTime, orderToAddress:$orderToAddress, delegateOrderNo:$delegateOrderNo");
@@ -333,9 +337,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           toAddressRow(),
           delegateOrderNoRow(),
           SizedBox(height: 20),
-          canSave
-              ? ElevatedButton(onPressed: save, child: Text("保存"))
-              : SizedBox(),
+          ElevatedButton(onPressed: save, child: Text("保存"))
         ],
       ),
     );
@@ -350,13 +352,25 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       return;
     }
     try {
-      OrderCreateCommand orderCreateCommand = OrderCreateCommand(
-          orderNo, orderTime, ContactsDTO("", "", orderToAddress));
-      OrderDTO order = await orderNao.addOrder(orderCreateCommand);
-      order = await orderNao.delegatedOrder(
-          orderNo, OrderDelegatedCommand([DelegateItem(delegateOrderNo)]));
-      logger.d(order);
+      OrderDTO order;
       final notifier = context.read<OrderModelsNotifier>();
+      final selectedOrder = notifier.selectedOrder;
+      if (selectedOrder == null) {
+        OrderCreateCommand orderCreateCommand = OrderCreateCommand(
+            orderNo, orderTime, ContactsDTO("", "", orderToAddress));
+        await orderNao.addOrder(orderCreateCommand);
+        order = await orderNao.delegatedOrder(
+            orderNo, OrderDelegatedCommand(DelegateItem(delegateOrderNo)));
+      } else {
+        OrderModifyCommand orderModifyCommand = OrderModifyCommand(
+            selectedOrder.id,
+            orderNo,
+            orderTime,
+            orderToAddress,
+            delegateOrderNo);
+        order = await orderNao.modifyOrder(orderModifyCommand);
+      }
+      logger.d(order);
       notifier.savedOrder = order;
       notifier.selectedOrder = order;
       FocusScope.of(context).requestFocus(new FocusNode());
@@ -395,8 +409,9 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
             minTime: DateTime(2021, 5, 10),
             maxTime: DateTime(2049, 5, 9),
             onConfirm: (date) {
-              orderTimeTextEditingController.text = formatDate(
+              orderTime = formatDate(
                   date, [yyyy, "-", mm, "-", dd, " ", HH, ":", nn, ":", ss]);
+              orderTimeTextEditingController.text = orderTime;
             },
           );
         },

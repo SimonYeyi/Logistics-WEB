@@ -19,6 +19,9 @@ abstract class OrderNao {
   @POST("/order/add")
   Future<OrderDTO> addOrder(@Body() OrderCreateCommand command);
 
+  @POST("/order/modify")
+  Future<OrderDTO> modifyOrder(@Body() OrderModifyCommand command);
+
   @PATCH("/order/{orderNo}/delegated")
   Future<OrderDTO> delegatedOrder(
       @Path("orderNo") String orderNo, @Body() OrderDelegatedCommand command);
@@ -52,6 +55,14 @@ class OrderDTO {
 
   OrderDTO(this.id, this.no, this.time, this.amount, this.amountPaid, this.from,
       this.to, this.delegateOrders);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OrderDTO && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   @override
   String toString() {
@@ -111,14 +122,28 @@ class OrderCreateCommand {
 }
 
 @JsonSerializable()
-class OrderDelegatedCommand {
-  List<DelegateItem> delegateItems;
+class OrderModifyCommand {
+  num orderId;
+  String orderNo;
+  String orderTime;
+  String toAddress;
+  String delegateOrderNo;
 
-  OrderDelegatedCommand(this.delegateItems);
+  OrderModifyCommand(this.orderId, this.orderNo, this.orderTime, this.toAddress,
+      this.delegateOrderNo);
+
+  Map<String, dynamic> toJson() => _$OrderModifyCommandToJson(this);
+}
+
+@JsonSerializable()
+class OrderDelegatedCommand {
+  DelegateItem delegateItem;
+
+  OrderDelegatedCommand(this.delegateItem);
 
   @override
   String toString() {
-    return 'OrderDelegatedCommand{delegateItems: $delegateItems}';
+    return 'OrderDelegatedCommand{delegateItem: $delegateItem}';
   }
 
   Map<String, dynamic> toJson() => _$OrderDelegatedCommandToJson(this);

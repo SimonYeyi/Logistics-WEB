@@ -12,7 +12,7 @@ import 'package:toast/toast.dart';
 class TrackModelsNotifier with ChangeNotifier {
   TrackDTO? _selectedTrack;
   num? orderId;
-  TrackDTO? _newTrack;
+  TrackDTO? _savedTrack;
 
   set selectedTrack(TrackDTO? track) {
     _selectedTrack = track;
@@ -21,12 +21,12 @@ class TrackModelsNotifier with ChangeNotifier {
 
   TrackDTO? get selectedTrack => _selectedTrack;
 
-  set newTrack(TrackDTO? track) {
-    _newTrack = track;
+  set savedTrack(TrackDTO? track) {
+    _savedTrack = track;
     notifyListeners();
   }
 
-  TrackDTO? get newTrack => _newTrack;
+  TrackDTO? get savedTrack => _savedTrack;
 }
 
 class TrackPage extends StatefulWidget {
@@ -154,17 +154,17 @@ class _TrackListPageState extends State<_TrackListPage> {
             child: trackItemWidget("时间", "区域", "详情"),
           ),
           Consumer<TrackModelsNotifier>(builder: (context, value, child) {
-            final newTrack = value.newTrack;
-            if (newTrack != null) {
-              if (tracks.contains(newTrack)) {
-                final index = tracks.indexOf(newTrack);
+            final savedTrack = value.savedTrack;
+            if (savedTrack != null) {
+              if (tracks.contains(savedTrack)) {
+                final index = tracks.indexOf(savedTrack);
                 tracks.removeAt(index);
-                tracks.insert(index, newTrack);
+                tracks.insert(index, savedTrack);
               } else {
-                tracks.add(newTrack);
+                tracks.add(savedTrack);
                 selectedItem = tracks.length - 1;
               }
-              value._newTrack = null;
+              value._savedTrack = null;
             }
             return Flexible(
               child: ListView.builder(
@@ -319,7 +319,7 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
         track = await trackNao.modifyTrack(trackModifyCommand);
       }
       logger.d(track);
-      notifier.newTrack = track;
+      notifier.savedTrack = track;
       notifier.selectedTrack = track;
       Toast.show("保存成功", context);
       setState(() {});

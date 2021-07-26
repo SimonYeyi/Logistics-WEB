@@ -92,19 +92,36 @@ Map<String, dynamic> _$OrderCreateCommandToJson(OrderCreateCommand instance) =>
       'to': instance.to,
     };
 
+OrderModifyCommand _$OrderModifyCommandFromJson(Map<String, dynamic> json) {
+  return OrderModifyCommand(
+    json['orderId'] as num,
+    json['orderNo'] as String,
+    json['orderTime'] as String,
+    json['toAddress'] as String,
+    json['delegateOrderNo'] as String,
+  );
+}
+
+Map<String, dynamic> _$OrderModifyCommandToJson(OrderModifyCommand instance) =>
+    <String, dynamic>{
+      'orderId': instance.orderId,
+      'orderNo': instance.orderNo,
+      'orderTime': instance.orderTime,
+      'toAddress': instance.toAddress,
+      'delegateOrderNo': instance.delegateOrderNo,
+    };
+
 OrderDelegatedCommand _$OrderDelegatedCommandFromJson(
     Map<String, dynamic> json) {
   return OrderDelegatedCommand(
-    (json['delegateItems'] as List<dynamic>)
-        .map((e) => DelegateItem.fromJson(e as Map<String, dynamic>))
-        .toList(),
+    DelegateItem.fromJson(json['delegateItem'] as Map<String, dynamic>),
   );
 }
 
 Map<String, dynamic> _$OrderDelegatedCommandToJson(
         OrderDelegatedCommand instance) =>
     <String, dynamic>{
-      'delegateItems': instance.delegateItems,
+      'delegateItem': instance.delegateItem,
     };
 
 DelegateItem _$DelegateItemFromJson(Map<String, dynamic> json) {
@@ -172,6 +189,22 @@ class _OrderNao implements OrderNao {
         _setStreamType<OrderDTO>(
             Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
                 .compose(_dio.options, '/order/add',
+                    queryParameters: queryParameters, data: _data)
+                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = OrderDTO.fromJson(_result.data!);
+    return value;
+  }
+
+  @override
+  Future<OrderDTO> modifyOrder(command) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(command.toJson());
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<OrderDTO>(
+            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+                .compose(_dio.options, '/order/modify',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = OrderDTO.fromJson(_result.data!);
