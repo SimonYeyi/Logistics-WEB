@@ -15,6 +15,9 @@ abstract class TrackNao {
 
   @POST("/track/add")
   Future<TrackDTO> addTrack(@Body() TrackCreateCommand trackCreateCommand);
+
+  @POST("/track/modify")
+  Future<TrackDTO> modifyTrack(@Body() TrackModifyCommand trackModifyCommand);
 }
 
 @JsonSerializable()
@@ -43,6 +46,14 @@ class TrackDTO {
   TrackDTO(this.id, this.area, this.event, this.time);
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrackDTO && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
   String toString() {
     return 'TrackDTO{id: $id, area: $area, event: $event, time: $time}';
   }
@@ -60,4 +71,17 @@ class TrackCreateCommand {
   TrackCreateCommand(this.orderId, this.trackArea, this.trackEvent);
 
   Map<String, dynamic> toJson() => _$TrackCreateCommandToJson(this);
+}
+
+@JsonSerializable()
+class TrackModifyCommand {
+  num trackId;
+  String trackArea;
+  String trackEvent;
+  String trackTime;
+
+  TrackModifyCommand(
+      this.trackId, this.trackArea, this.trackEvent, this.trackTime);
+
+  Map<String, dynamic> toJson() => _$TrackModifyCommandToJson(this);
 }

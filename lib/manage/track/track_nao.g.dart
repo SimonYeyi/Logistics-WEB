@@ -51,6 +51,23 @@ Map<String, dynamic> _$TrackCreateCommandToJson(TrackCreateCommand instance) =>
       'trackEvent': instance.trackEvent,
     };
 
+TrackModifyCommand _$TrackModifyCommandFromJson(Map<String, dynamic> json) {
+  return TrackModifyCommand(
+    json['trackId'] as num,
+    json['trackArea'] as String,
+    json['trackEvent'] as String,
+    json['trackTime'] as String,
+  );
+}
+
+Map<String, dynamic> _$TrackModifyCommandToJson(TrackModifyCommand instance) =>
+    <String, dynamic>{
+      'trackId': instance.trackId,
+      'trackArea': instance.trackArea,
+      'trackEvent': instance.trackEvent,
+      'trackTime': instance.trackTime,
+    };
+
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
@@ -87,6 +104,22 @@ class _TrackNao implements TrackNao {
         _setStreamType<TrackDTO>(
             Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
                 .compose(_dio.options, '/track/add',
+                    queryParameters: queryParameters, data: _data)
+                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = TrackDTO.fromJson(_result.data!);
+    return value;
+  }
+
+  @override
+  Future<TrackDTO> modifyTrack(trackModifyCommand) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(trackModifyCommand.toJson());
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<TrackDTO>(
+            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+                .compose(_dio.options, '/track/modify',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = TrackDTO.fromJson(_result.data!);

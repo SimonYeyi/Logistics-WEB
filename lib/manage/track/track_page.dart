@@ -1,6 +1,8 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/track/track_nao.dart';
@@ -10,7 +12,7 @@ import 'package:toast/toast.dart';
 class TrackModelsNotifier with ChangeNotifier {
   TrackDTO? _selectedTrack;
   num? orderId;
-  TrackDTO? _savedTrack;
+  TrackDTO? _newTrack;
 
   set selectedTrack(TrackDTO? track) {
     _selectedTrack = track;
@@ -19,12 +21,12 @@ class TrackModelsNotifier with ChangeNotifier {
 
   TrackDTO? get selectedTrack => _selectedTrack;
 
-  set savedTrack(TrackDTO? track) {
-    _savedTrack = track;
+  set newTrack(TrackDTO? track) {
+    _newTrack = track;
     notifyListeners();
   }
 
-  TrackDTO? get savedTrack => _savedTrack;
+  TrackDTO? get newTrack => _newTrack;
 }
 
 class TrackPage extends StatefulWidget {
@@ -130,7 +132,7 @@ class _TrackListPageState extends State<_TrackListPage> {
       logger.d(tracks);
       notifier.orderId = tracks.order.id;
       if (this.tracks.isNotEmpty) {
-        selectedItem = null;
+        selectedItem = this.tracks.length - 1;
         context.read<TrackModelsNotifier>().selectedTrack = this.tracks.last;
       }
       setState(() {});
@@ -152,11 +154,17 @@ class _TrackListPageState extends State<_TrackListPage> {
             child: trackItemWidget("时间", "区域", "详情"),
           ),
           Consumer<TrackModelsNotifier>(builder: (context, value, child) {
-            final savedTrack = value.savedTrack;
-            if (savedTrack != null) {
-              tracks.add(savedTrack);
-              selectedItem = tracks.length - 1;
-              value._savedTrack = null;
+            final newTrack = value.newTrack;
+            if (newTrack != null) {
+              if (tracks.contains(newTrack)) {
+                final index = tracks.indexOf(newTrack);
+                tracks.removeAt(index);
+                tracks.insert(index, newTrack);
+              } else {
+                tracks.add(newTrack);
+                selectedItem = tracks.length - 1;
+              }
+              value._newTrack = null;
             }
             return Flexible(
               child: ListView.builder(
@@ -251,7 +259,6 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
   late num? orderId;
   late String trackArea;
   late String trackEvent;
-  bool canSave = false;
   final TextEditingController trackTimeTextEditingController =
       TextEditingController();
   final TextEditingController trackAreaTextEditingController =
@@ -267,8 +274,8 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
     orderId = notifier.orderId;
     trackArea = track?.area ?? "";
     trackEvent = track?.event ?? "";
-    canSave = track == null && notifier.orderId != null;
 
+    trackTimeTextEditingController.text = track?.time ?? "";
     trackAreaTextEditingController.text = trackArea;
     trackEventTextEditingController.text = trackEvent;
 
@@ -277,13 +284,13 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       child: Column(
         children: [
           SizedBox(height: 32),
+          trackTimeRow(),
+          SizedBox(height: 12),
           trackAreaRow(),
           SizedBox(height: 12),
           trackEventRow(),
           SizedBox(height: 20),
-          canSave
-              ? ElevatedButton(onPressed: save, child: Text("保存"))
-              : SizedBox(),
+          ElevatedButton(onPressed: save, child: Text("保存"))
         ],
       ),
     );
@@ -295,18 +302,62 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       return;
     }
     try {
-      TrackCreateCommand trackCreateCommand =
-          TrackCreateCommand(orderId!, trackArea, trackEvent);
-      TrackDTO track = await trackNao.addTrack(trackCreateCommand);
-      logger.d(track);
       final notifier = context.read<TrackModelsNotifier>();
-      notifier.savedTrack = track;
+      TrackDTO track;
+      final selectedTrack = notifier.selectedTrack;
+      if (selectedTrack == null) {
+        TrackCreateCommand trackCreateCommand =
+            TrackCreateCommand(orderId!, trackArea, trackEvent);
+        track = await trackNao.addTrack(trackCreateCommand);
+      } else {
+        TrackModifyCommand trackModifyCommand = TrackModifyCommand(
+          selectedTrack.id,
+          trackArea,
+          trackEvent,
+          trackTimeTextEditingController.text,
+        );
+        track = await trackNao.modifyTrack(trackModifyCommand);
+      }
+      logger.d(track);
+      notifier.newTrack = track;
       notifier.selectedTrack = track;
       Toast.show("保存成功", context);
       setState(() {});
     } catch (e) {
       Toast.show("保存失败，请重试", context);
     }
+  }
+
+  Widget trackTimeRow() {
+    return Flexible(
+      child: GestureDetector(
+        onTap: () {
+          DatePicker.showDateTimePicker(
+            context,
+            showTitleActions: true,
+            currentTime: DateTime.now(),
+            locale: LocaleType.zh,
+            minTime: DateTime(2021, 5, 10),
+            maxTime: DateTime(2049, 5, 9),
+            onConfirm: (date) {
+              trackTimeTextEditingController.text = formatDate(
+                  date, [yyyy, "-", mm, "-", dd, " ", HH, ":", nn, ":", ss]);
+            },
+          );
+        },
+        child: SizedBox(
+          width: 200,
+          child: TextFormField(
+            controller: trackTimeTextEditingController,
+            enabled: false,
+            decoration: InputDecoration(
+              labelText: "时间：",
+              labelStyle: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget trackAreaRow() {
