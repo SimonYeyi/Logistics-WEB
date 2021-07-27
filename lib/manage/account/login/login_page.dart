@@ -80,7 +80,7 @@ class LoginPage extends StatelessWidget {
     try {
       final accountDTO = await accountNao.login(accountLoginCommand);
       await accountDao.save(accountDTO);
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed("/");
     } on DioError catch (e) {
       Toast.show(e.response?.data?.toString() ?? "", context, duration: 5);
     }
