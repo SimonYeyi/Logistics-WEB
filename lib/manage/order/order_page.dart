@@ -276,7 +276,7 @@ class _OrderListPageState extends State<_OrderListPage> {
         decoration: BoxDecoration(
           border: Border.all(color: Theme.of(context).dividerColor),
         ),
-        child: Text(
+        child: SelectableText(
           text,
           style: TextStyle(fontSize: 12),
         ),
