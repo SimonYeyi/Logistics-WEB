@@ -11,7 +11,7 @@ import 'package:toast/toast.dart';
 
 class TrackModelsNotifier with ChangeNotifier {
   TrackDTO? _selectedTrack;
-  num? orderId;
+  num? _orderId;
   TrackDTO? _savedTrack;
 
   set selectedTrack(TrackDTO? track) {
@@ -27,6 +27,13 @@ class TrackModelsNotifier with ChangeNotifier {
   }
 
   TrackDTO? get savedTrack => _savedTrack;
+
+  set orderId(num? orderId) {
+    _orderId = orderId;
+    notifyListeners();
+  }
+
+  num? get orderId => _orderId;
 }
 
 class TrackPage extends StatefulWidget {
@@ -290,7 +297,8 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
           SizedBox(height: 12),
           trackEventRow(),
           SizedBox(height: 20),
-          ElevatedButton(onPressed: save, child: Text("保存"))
+          ElevatedButton(
+              onPressed: orderId == null ? null : save, child: Text("保存"))
         ],
       ),
     );
