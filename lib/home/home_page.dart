@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boost/boost_navigator.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatelessWidget {
   final List<String> bannerImageAssets = const [
@@ -49,7 +47,7 @@ class HomePage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: GestureDetector(
-                  onTap: () => BoostNavigator.of().push("track"),
+                  onTap: () => Navigator.of(context).pushNamed("track"),
                   child: Image.asset(
                     "images/official_input.png",
                     fit: BoxFit.fill,

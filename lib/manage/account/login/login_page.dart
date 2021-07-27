@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_boost/boost_navigator.dart';
 import 'package:logistics/comm/account_dao.dart';
 import 'package:logistics/manage/account/account_nao.dart';
 import 'package:toast/toast.dart';
@@ -83,7 +80,7 @@ class LoginPage extends StatelessWidget {
     try {
       final accountDTO = await accountNao.login(accountLoginCommand);
       await accountDao.save(accountDTO);
-      BoostNavigator.of().push("home");
+      Navigator.of(context).pushReplacementNamed("home");
     } on DioError catch (e) {
       Toast.show(e.response?.data?.toString() ?? "", context, duration: 5);
     }
