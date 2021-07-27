@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:logistics/comm/logistic_dio.dart';
 import 'package:logistics/manage/track/track_page.dart';
+import 'package:toast/toast.dart';
 
 import 'order/order_page.dart';
 
@@ -17,6 +20,7 @@ class _ManagePageState extends State<ManagePage> {
   @override
   void initState() {
     super.initState();
+    handleUnauthorized(context);
     pageController = PageController();
   }
 
@@ -81,5 +85,11 @@ class _ManagePageState extends State<ManagePage> {
         children: [OrderPage(), TrackPage()],
       ),
     );
+  }
+
+  void handleUnauthorized(BuildContext context) {
+    onUnauthorized = () {
+      Navigator.of(context).pushNamed("login");
+    };
   }
 }

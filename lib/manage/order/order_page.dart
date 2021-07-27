@@ -153,7 +153,7 @@ class _OrderListPageState extends State<_OrderListPage> {
       context.read<OrderModelsNotifier>().selectedOrder = searchedOrder!;
       setState(() {});
     } catch (e) {
-      Toast.show("请检查订单号是否正确", context, duration: 3);
+      Toast.show("请检查订单号是否正确", context, duration: 5);
     }
   }
 
@@ -374,7 +374,7 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       notifier.savedOrder = order;
       notifier.selectedOrder = order;
       FocusScope.of(context).requestFocus(new FocusNode());
-      Toast.show("保存成功", context);
+      Toast.show("保存成功", context, duration: 5);
       setState(() {});
     } catch (e) {
       Toast.show("请检查订单号是否已经存在", context, duration: 5);

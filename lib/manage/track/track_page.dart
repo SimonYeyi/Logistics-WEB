@@ -148,7 +148,7 @@ class _TrackListPageState extends State<_TrackListPage> {
       notifier.orderId = null;
       notifier.selectedTrack = null;
       setState(() {});
-      Toast.show("订单号不存在", context, duration: 3);
+      Toast.show("订单号不存在", context, duration: 5);
     }
   }
 
@@ -203,7 +203,7 @@ class _TrackListPageState extends State<_TrackListPage> {
               onPressed: () {
                 final notifier = context.read<TrackModelsNotifier>();
                 if (notifier.orderId == null) {
-                  Toast.show("请先输入订单号搜索", context, duration: 3);
+                  Toast.show("请先输入订单号搜索", context, duration: 5);
                 } else {
                   selectedItem = null;
                   notifier.selectedTrack = null;
@@ -329,10 +329,10 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       logger.d(track);
       notifier.savedTrack = track;
       notifier.selectedTrack = track;
-      Toast.show("保存成功", context);
+      Toast.show("保存成功", context, duration: 5);
       setState(() {});
     } catch (e) {
-      Toast.show("保存失败，请重试", context);
+      Toast.show("保存失败，请重试", context, duration: 5);
     }
   }
 

@@ -47,7 +47,9 @@ class _AuthenticationInterceptor extends Interceptor {
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
     final accountDTO = await accountDao.find();
-    options.headers["Authentication"] = accountDTO?.token;
+    if (accountDTO != null) {
+      options.headers["Authentication"] = accountDTO.token;
+    }
     super.onRequest(options, handler);
   }
 
