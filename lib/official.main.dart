@@ -16,7 +16,6 @@ class MyApp extends StatelessWidget {
         "track": (context) => TrackPage(),
       },
       theme: ThemeData(
-        platform: TargetPlatform.android,
         dividerTheme: DividerThemeData(space: 1),
       ),
     );
