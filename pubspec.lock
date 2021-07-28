@@ -216,15 +216,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_boost:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "v3.0-beta.6"
-      resolved-ref: a8bf890f83701f5c492ff9450ecb1d1c5cba78b7
-      url: "https://github.com/alibaba/flutter_boost.git"
-    source: git
-    version: "3.0.0"
   flutter_datetime_picker:
     dependency: "direct main"
     description:
