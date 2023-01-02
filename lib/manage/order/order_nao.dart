@@ -16,6 +16,9 @@ abstract class OrderNao {
   Future<OrderPageDTO> getOrders(
       @Query("page") int page, @Query("pageSize") int pageSize);
 
+  @GET("/order/page/first/get")
+  Future<OrderPageDTO> getFirstOrders();
+
   @POST("/order/add")
   Future<OrderDTO> addOrder(@Body() OrderCreateCommand command);
 
@@ -44,17 +47,32 @@ class OrderPageDTO {
 
 @JsonSerializable()
 class OrderDTO {
-  num id;
-  String no;
-  String time;
-  int amount;
-  int amountPaid;
-  ContactsDTO from;
-  ContactsDTO to;
-  List<DelegateOrderDTO> delegateOrders;
+  final num id;
+  final String no;
+  final String time;
+  final int amount;
+  final int amountPaid;
+  final double? goodsWeight;
+  final int? goodsQuantity;
+  final String? incomingChannel;
+  final String? comment;
+  final ContactsDTO from;
+  final ContactsDTO to;
+  final List<DelegateOrderDTO> delegateOrders;
 
-  OrderDTO(this.id, this.no, this.time, this.amount, this.amountPaid, this.from,
-      this.to, this.delegateOrders);
+  OrderDTO(
+      this.id,
+      this.no,
+      this.time,
+      this.amount,
+      this.amountPaid,
+      this.goodsWeight,
+      this.goodsQuantity,
+      this.incomingChannel,
+      this.comment,
+      this.from,
+      this.to,
+      this.delegateOrders);
 
   @override
   bool operator ==(Object other) =>
@@ -114,9 +132,15 @@ class DelegateOrderDTO {
 class OrderCreateCommand {
   String orderNo;
   String orderTime;
+  double? goodsWeight;
+  int? goodsQuantity;
+  String? incomingChannel;
+  String? comment;
   ContactsDTO to;
+  OrderDelegatedCommand orderDelegatedCommand;
 
-  OrderCreateCommand(this.orderNo, this.orderTime, this.to);
+  OrderCreateCommand(this.orderNo, this.orderTime, this.goodsWeight,
+      this.goodsQuantity, this.incomingChannel, this.comment, this.to,this.orderDelegatedCommand);
 
   Map<String, dynamic> toJson() => _$OrderCreateCommandToJson(this);
 }
@@ -126,10 +150,22 @@ class OrderModifyCommand {
   num orderId;
   String orderNo;
   String orderTime;
+  double? goodsWeight;
+  int? goodsQuantity;
+  String? incomingChannel;
+  String? comment;
   String toAddress;
   String delegateOrderNo;
 
-  OrderModifyCommand(this.orderId, this.orderNo, this.orderTime, this.toAddress,
+  OrderModifyCommand(
+      this.orderId,
+      this.orderNo,
+      this.orderTime,
+      this.goodsWeight,
+      this.goodsQuantity,
+      this.incomingChannel,
+      this.comment,
+      this.toAddress,
       this.delegateOrderNo);
 
   Map<String, dynamic> toJson() => _$OrderModifyCommandToJson(this);
@@ -145,6 +181,9 @@ class OrderDelegatedCommand {
   String toString() {
     return 'OrderDelegatedCommand{delegateItem: $delegateItem}';
   }
+
+  factory OrderDelegatedCommand.fromJson(Map<String, dynamic> json) =>
+      _$OrderDelegatedCommandFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrderDelegatedCommandToJson(this);
 }

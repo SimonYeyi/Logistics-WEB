@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/track/track_nao.dart';
-import 'package:toast/toast.dart';
+import 'package:oktoast/oktoast.dart';
 
 class TrackPage extends StatefulWidget {
   @override
@@ -171,7 +171,7 @@ class _TrackPageState extends State<TrackPage> {
         decoration: BoxDecoration(
           border: Border.all(color: Theme.of(context).dividerColor),
         ),
-        child: Text(
+        child: SelectableText(
           text,
           style: TextStyle(fontSize: 12),
         ),
@@ -245,7 +245,7 @@ class _TrackPageState extends State<TrackPage> {
       logger.d(value);
     }).catchError((e) {
       model = null;
-      Toast.show("可能存在错误的订单号\n请检查输入框中的订单号是否正确", context, duration: 5);
+      showToast("可能存在错误的订单号\n请检查输入框中的订单号是否正确");
     }).whenComplete(() => setState(() {}));
   }
 

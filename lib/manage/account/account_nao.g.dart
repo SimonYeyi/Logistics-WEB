@@ -6,14 +6,12 @@ part of 'account_nao.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AccountDTO _$AccountDTOFromJson(Map<String, dynamic> json) {
-  return AccountDTO(
-    json['accountId'] as num,
-    json['accountName'] as String,
-    json['token'] as String,
-    json['refreshToken'] as String,
-  );
-}
+AccountDTO _$AccountDTOFromJson(Map<String, dynamic> json) => AccountDTO(
+      json['accountId'] as num,
+      json['accountName'] as String,
+      json['token'] as String,
+      json['refreshToken'] as String,
+    );
 
 Map<String, dynamic> _$AccountDTOToJson(AccountDTO instance) =>
     <String, dynamic>{
@@ -23,12 +21,11 @@ Map<String, dynamic> _$AccountDTOToJson(AccountDTO instance) =>
       'refreshToken': instance.refreshToken,
     };
 
-AccountLoginCommand _$AccountLoginCommandFromJson(Map<String, dynamic> json) {
-  return AccountLoginCommand(
-    json['accountName'] as String,
-    json['password'] as String,
-  );
-}
+AccountLoginCommand _$AccountLoginCommandFromJson(Map<String, dynamic> json) =>
+    AccountLoginCommand(
+      json['accountName'] as String,
+      json['password'] as String,
+    );
 
 Map<String, dynamic> _$AccountLoginCommandToJson(
         AccountLoginCommand instance) =>
@@ -41,6 +38,8 @@ Map<String, dynamic> _$AccountLoginCommandToJson(
 // RetrofitGenerator
 // **************************************************************************
 
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
+
 class _AccountNao implements AccountNao {
   _AccountNao(this._dio, {this.baseUrl});
 
@@ -52,11 +51,12 @@ class _AccountNao implements AccountNao {
   Future<AccountDTO> login(accountLoginCommand) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(accountLoginCommand.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<AccountDTO>(
-            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+            Options(method: 'POST', headers: _headers, extra: _extra)
                 .compose(_dio.options, '/account/login',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
@@ -68,10 +68,11 @@ class _AccountNao implements AccountNao {
   Future<AccountDTO> refreshToken(refreshToken) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'refreshToken': refreshToken};
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<AccountDTO>(
-            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+            Options(method: 'POST', headers: _headers, extra: _extra)
                 .compose(_dio.options, '/account/token/refresh',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));

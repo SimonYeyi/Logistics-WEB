@@ -1,4 +1,5 @@
 import 'package:date_format/date_format.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,8 +7,8 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/track/track_nao.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 
 class TrackModelsNotifier with ChangeNotifier {
   TrackDTO? _selectedTrack;
@@ -143,12 +144,12 @@ class _TrackListPageState extends State<_TrackListPage> {
         context.read<TrackModelsNotifier>().selectedTrack = this.tracks.last;
       }
       setState(() {});
-    } catch (e) {
+    } on DioError catch (e) {
       tracks = [];
       notifier.orderId = null;
       notifier.selectedTrack = null;
       setState(() {});
-      Toast.show("订单号不存在", context, duration: 5);
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 
@@ -203,7 +204,7 @@ class _TrackListPageState extends State<_TrackListPage> {
               onPressed: () {
                 final notifier = context.read<TrackModelsNotifier>();
                 if (notifier.orderId == null) {
-                  Toast.show("请先输入订单号搜索", context, duration: 5);
+                  showToast("请先输入订单号搜索");
                 } else {
                   selectedItem = null;
                   notifier.selectedTrack = null;
@@ -314,8 +315,12 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       TrackDTO track;
       final selectedTrack = notifier.selectedTrack;
       if (selectedTrack == null) {
-        TrackCreateCommand trackCreateCommand =
-            TrackCreateCommand(orderId!, trackArea, trackEvent);
+        TrackCreateCommand trackCreateCommand = TrackCreateCommand(
+          orderId!,
+          trackArea,
+          trackEvent,
+          trackTimeTextEditingController.text,
+        );
         track = await trackNao.addTrack(trackCreateCommand);
       } else {
         TrackModifyCommand trackModifyCommand = TrackModifyCommand(
@@ -329,10 +334,10 @@ class _TrackDetailsPageState extends State<_TrackDetailsPage> {
       logger.d(track);
       notifier.savedTrack = track;
       notifier.selectedTrack = track;
-      Toast.show("保存成功", context, duration: 5);
+      showToast("保存成功");
       setState(() {});
-    } catch (e) {
-      Toast.show("保存失败，请重试", context, duration: 5);
+    } on DioError catch (e) {
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 

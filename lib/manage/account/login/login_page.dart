@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logistics/comm/account_dao.dart';
 import 'package:logistics/manage/account/account_nao.dart';
-import 'package:toast/toast.dart';
+import 'package:oktoast/oktoast.dart';
 
 class LoginPage extends StatelessWidget {
   AccountNao accountNao = AccountNao();
@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 40),
-              Text("大途物流管理系统", style: TextStyle(fontSize: 24)),
+              Text("新佳源大途物流管理系统", style: TextStyle(fontSize: 24)),
               SizedBox(height: 20),
               TextField(
                 controller: accountNameController,
@@ -82,7 +82,7 @@ class LoginPage extends StatelessWidget {
       await accountDao.save(accountDTO);
       Navigator.of(context).pushReplacementNamed("/");
     } on DioError catch (e) {
-      Toast.show(e.response?.data?.toString() ?? "", context, duration: 5);
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 }

@@ -67,8 +67,10 @@ class TrackCreateCommand {
   num orderId;
   String trackArea;
   String trackEvent;
+  String trackTime;
 
-  TrackCreateCommand(this.orderId, this.trackArea, this.trackEvent);
+  TrackCreateCommand(
+      this.orderId, this.trackArea, this.trackEvent, this.trackTime);
 
   Map<String, dynamic> toJson() => _$TrackCreateCommandToJson(this);
 }

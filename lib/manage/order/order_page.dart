@@ -7,8 +7,8 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:logistics/comm/color.dart';
 import 'package:logistics/comm/logger.dart';
 import 'package:logistics/manage/order/order_nao.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 
 class OrderModelsNotifier with ChangeNotifier {
   OrderDTO? _selectedOrder;
@@ -43,9 +43,9 @@ class _OrderPageState extends State<OrderPage> {
       create: (context) => OrderModelsNotifier(),
       child: Row(
         children: [
-          Expanded(child: _OrderListPage()),
+          Expanded(flex: 2, child: _OrderListPage()),
           Container(width: 1, color: Theme.of(context).dividerColor),
-          Expanded(child: _OrderDetailsPage()),
+          Expanded(flex: 1, child: _OrderDetailsPage()),
         ],
       ),
     );
@@ -74,7 +74,7 @@ class _OrderListPageState extends State<_OrderListPage> {
 
   void getAndShowOrders() async {
     try {
-      final page = await orderNao.getOrders(1, 10);
+      final page = await orderNao.getFirstOrders();
       logger.d(page);
       orders = page.content;
       if (orders.isNotEmpty) {
@@ -83,7 +83,7 @@ class _OrderListPageState extends State<_OrderListPage> {
       }
       setState(() {});
     } on DioError catch (e) {
-      Toast.show(e.response?.data?.toString() ?? "", context, duration: 5);
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 
@@ -152,8 +152,8 @@ class _OrderListPageState extends State<_OrderListPage> {
       selectedItem = -1;
       context.read<OrderModelsNotifier>().selectedOrder = searchedOrder!;
       setState(() {});
-    } catch (e) {
-      Toast.show("请检查订单号是否正确", context, duration: 5);
+    } on DioError catch (e) {
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 
@@ -163,7 +163,8 @@ class _OrderListPageState extends State<_OrderListPage> {
         children: [
           Container(
             color: hexColor("#d8f6ff"),
-            child: orderItemWidget("运单号", "转单号", "下单时间", "目的地"),
+            child: orderItemWidget(
+                "运单号", "转单号", "下单时间", "目的地", "重量", "件数", "入货渠道", "备注"),
           ),
           SizedBox(height: 6),
           searchedOrder == null
@@ -186,7 +187,11 @@ class _OrderListPageState extends State<_OrderListPage> {
                             ? ""
                             : searchedOrder!.delegateOrders[0].no,
                         searchedOrder!.time,
-                        searchedOrder!.to.address),
+                        searchedOrder!.to.address,
+                        searchedOrder!.goodsWeight?.toString(),
+                        searchedOrder!.goodsQuantity?.toString(),
+                        searchedOrder!.incomingChannel,
+                        searchedOrder!.comment),
                   ),
                 ),
           Consumer<OrderModelsNotifier>(builder: (context, value, child) {
@@ -221,6 +226,10 @@ class _OrderListPageState extends State<_OrderListPage> {
                             : order.delegateOrders[0].no,
                         order.time,
                         order.to.address,
+                        order.goodsWeight?.toString(),
+                        order.goodsQuantity?.toString(),
+                        order.incomingChannel,
+                        order.comment,
                         selectedItem == index),
                   );
                 },
@@ -250,8 +259,15 @@ class _OrderListPageState extends State<_OrderListPage> {
     );
   }
 
-  Widget orderItemWidget(String orderNo, String delegateOrderNo,
-      String orderTime, String destination,
+  Widget orderItemWidget(
+      String orderNo,
+      String delegateOrderNo,
+      String orderTime,
+      String destination,
+      String? goodsWeight,
+      String? goodsQuantity,
+      String? incomingChannel,
+      String? comment,
       [bool selected = false]) {
     return Container(
       color: selected ? Colors.grey[200] : Colors.transparent,
@@ -261,6 +277,10 @@ class _OrderListPageState extends State<_OrderListPage> {
           cellWidget(1, delegateOrderNo),
           cellWidget(1, orderTime),
           cellWidget(1, destination),
+          cellWidget(1, goodsWeight ?? ""),
+          cellWidget(1, goodsQuantity ?? ""),
+          cellWidget(1, incomingChannel ?? ""),
+          cellWidget(1, comment ?? ""),
         ],
       ),
     );
@@ -299,6 +319,10 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
   final OrderNao orderNao = OrderNao();
   late String orderNo;
   late String orderTime;
+  late String? goodsWeightString;
+  late String? goodsQuantityString;
+  late String? incomingChannel;
+  late String? comment;
   late String orderToAddress;
   late String delegateOrderNo;
   final TextEditingController orderNoTextEditingController =
@@ -309,6 +333,14 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       TextEditingController();
   final TextEditingController delegateOrderNoTextEditingController =
       TextEditingController();
+  final TextEditingController goodsWeighTextEditingController =
+      TextEditingController();
+  final TextEditingController goodsQuantityTextEditingController =
+      TextEditingController();
+  final TextEditingController incomingChannelTextEditingController =
+      TextEditingController();
+  final TextEditingController commentTextEditingController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -317,15 +349,23 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
     final delegateOrders = order?.delegateOrders ?? const [];
     orderNo = order?.no ?? "";
     orderTime = order?.time ?? "";
+    goodsWeightString = order?.goodsWeight?.toString();
+    goodsQuantityString = order?.goodsQuantity?.toString();
+    incomingChannel = order?.incomingChannel;
+    comment = order?.comment;
     orderToAddress = order?.to.address ?? "";
     delegateOrderNo = delegateOrders.isNotEmpty ? delegateOrders[0].no : "";
 
     logger.d(
-        "orderNo:$orderNo, orderTime:$orderTime, orderToAddress:$orderToAddress, delegateOrderNo:$delegateOrderNo");
+        "orderNo:$orderNo, orderTime:$orderTime, orderToAddress:$orderToAddress, delegateOrderNo:$delegateOrderNo, goodsWeight:$goodsWeightString, goodsQuantity:$goodsQuantityString, incomingChannel:$incomingChannel, comment:$comment");
     orderNoTextEditingController.text = orderNo;
     orderTimeTextEditingController.text = orderTime;
     orderToAddressTextEditingController.text = orderToAddress;
     delegateOrderNoTextEditingController.text = delegateOrderNo;
+    goodsWeighTextEditingController.text = goodsWeightString ?? "";
+    goodsQuantityTextEditingController.text = goodsQuantityString ?? "";
+    incomingChannelTextEditingController.text = incomingChannel ?? "";
+    commentTextEditingController.text = comment ?? "";
 
     return Form(
       key: formKey,
@@ -336,6 +376,13 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           orderTimeRow(),
           toAddressRow(),
           delegateOrderNoRow(),
+          SizedBox(height: 20),
+          Divider(),
+          SizedBox(height: 20),
+          goodsWeightRow(),
+          goodsQuantityRow(),
+          incomingChannelRow(),
+          commentRow(),
           SizedBox(height: 20),
           ElevatedButton(onPressed: save, child: Text("保存"))
         ],
@@ -355,17 +402,31 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       OrderDTO order;
       final notifier = context.read<OrderModelsNotifier>();
       final selectedOrder = notifier.selectedOrder;
+      final goodsWeight = double.tryParse(goodsWeightString ?? "");
+      final goodsQuantity = int.tryParse(goodsQuantityString ?? "");
+      final incomingChannel = this.incomingChannel;
+      final comment = this.comment;
+
       if (selectedOrder == null) {
         OrderCreateCommand orderCreateCommand = OrderCreateCommand(
-            orderNo, orderTime, ContactsDTO("", "", orderToAddress));
-        await orderNao.addOrder(orderCreateCommand);
-        order = await orderNao.delegatedOrder(
-            orderNo, OrderDelegatedCommand(DelegateItem(delegateOrderNo)));
+            orderNo,
+            orderTime,
+            goodsWeight,
+            goodsQuantity,
+            incomingChannel,
+            comment,
+            ContactsDTO("", "", orderToAddress),
+            OrderDelegatedCommand(DelegateItem(delegateOrderNo)));
+        order = await orderNao.addOrder(orderCreateCommand);
       } else {
         OrderModifyCommand orderModifyCommand = OrderModifyCommand(
             selectedOrder.id,
             orderNo,
             orderTime,
+            goodsWeight,
+            goodsQuantity,
+            incomingChannel,
+            comment,
             orderToAddress,
             delegateOrderNo);
         order = await orderNao.modifyOrder(orderModifyCommand);
@@ -373,11 +434,11 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
       logger.d(order);
       notifier.savedOrder = order;
       notifier.selectedOrder = order;
-      FocusScope.of(context).requestFocus(new FocusNode());
-      Toast.show("保存成功", context, duration: 5);
+      FocusScope.of(context).unfocus();
+      showToast("保存成功");
       setState(() {});
-    } catch (e) {
-      Toast.show("请检查订单号是否已经存在", context, duration: 5);
+    } on DioError catch (e) {
+      showToast(e.response?.data?.toString() ?? "");
     }
   }
 
@@ -456,6 +517,72 @@ class _OrderDetailsPageState extends State<_OrderDetailsPage> {
           controller: delegateOrderNoTextEditingController,
           decoration: InputDecoration(
             labelText: "转单号: ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget goodsWeightRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => goodsWeightString = value!.isEmpty ? null : value,
+          controller: goodsWeighTextEditingController,
+          decoration: InputDecoration(
+            labelText: "重量(kg): ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget goodsQuantityRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) =>
+              goodsQuantityString = value!.isEmpty ? null : value,
+          controller: goodsQuantityTextEditingController,
+          decoration: InputDecoration(
+            labelText: "件数: ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget incomingChannelRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => incomingChannel = value!.isEmpty ? null : value,
+          controller: incomingChannelTextEditingController,
+          decoration: InputDecoration(
+            labelText: "入货渠道: ",
+            labelStyle: TextStyle(fontSize: 14, height: 0.8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget commentRow() {
+    return Flexible(
+      child: SizedBox(
+        width: 200,
+        child: TextFormField(
+          onSaved: (value) => comment = value!.isEmpty ? null : value,
+          controller: commentTextEditingController,
+          maxLines: 10,
+          decoration: InputDecoration(
+            labelText: "备注: ",
             labelStyle: TextStyle(fontSize: 14, height: 0.8),
           ),
         ),

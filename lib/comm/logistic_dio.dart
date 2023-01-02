@@ -82,6 +82,6 @@ Function onUnauthorized = () {};
 
 BaseOptions _createBaseOptions() {
   return BaseOptions(
-    baseUrl: kDebugMode ? "http://localhost:5000" : "http://eus56.com:5000",
+    baseUrl: kDebugMode ? "http://localhost:5000" : "http://api.eus56.com:5000",
   );
 }
